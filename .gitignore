@@ -1,0 +1,38 @@
+# Arquivos compilados
+*.class
+*.jar
+*.war
+*.ear
+
+# Diretórios de build
+/bin/
+/build/
+/out/
+
+# Arquivos de logs
+*.log
+
+# Dependências locais (Maven/Gradle)
+/target/
+/.gradle/
+/.idea/
+/*.iml
+
+# Configurações da IDE
+/.vscode/
+/*.ipr
+/*.iws
+
+# Arquivos temporários
+*.tmp
+*.swp
+*.DS_Store
+
+# Configurações do sistema operacional
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Pacotes baixados
+*.zip
+*.tar.gz
