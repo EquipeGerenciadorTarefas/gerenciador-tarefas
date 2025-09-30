@@ -7,9 +7,10 @@ Sistema desenvolvido em Java para gerenciar tarefas, com suporte a:
 - Automação de build e CI/CD com GitHub Actions
 
 ## Integrantes
+- Matheus Cesar Reis
 - Raissa Rodrigues
 - Tiago Rodrigues Gregorio
-- Matheus Cesar Reis
+
 
 ## Pré-requisitos
 - Java JDK 11 ou superior
