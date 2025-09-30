@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -15,83 +14,89 @@ public class TaskManagerTest {
     private TaskManager taskManager;
     private Task mockTask; // Objeto Mockito para simular tarefas (antigo mockTarefa)
 
-    // Configuração inicial (@BeforeEach) é executada antes de cada método de teste.
     @BeforeEach
     public void setUp() {
         taskManager = new TaskManager(); // Inicializa o sistema real que será testado.
-        // Cria um mock (simulação) do objeto Task.
-        mockTask = Mockito.mock(Task.class);
+        mockTask = Mockito.mock(Task.class); // Cria um mock do objeto Task.
     }
 
     // --- Testes de Funcionalidade Básica (CRUD) ---
 
     @Test
     public void shouldAddTask() {
-        // Testa a adição de uma tarefa e verifica se o tamanho da lista é 1.
-        taskManager.addTask(new Task("New task", LocalDate.now(), Priority.MEDIUM));
+        Task t = mock(Task.class);
+        when(t.getDescription()).thenReturn("New task");
+        taskManager.addTask(t);
         assertEquals(1, taskManager.listAllTasks().size());
     }
 
     @Test
     public void shouldRemoveTaskByDescription() {
-        // Adiciona e remove a tarefa. Espera que a lista final tenha tamanho 0.
-        taskManager.addTask(new Task("Remove", LocalDate.now(), Priority.LOW));
+        Task t = mock(Task.class);
+        when(t.getDescription()).thenReturn("Remove");
+        taskManager.addTask(t);
         taskManager.removeTask("Remove");
         assertEquals(0, taskManager.listAllTasks().size());
     }
 
     @Test
     public void shouldCompleteTaskByDescription() {
-        // Adiciona a tarefa, conclui pelo nome e verifica se ela aparece na lista de concluídas.
-        taskManager.addTask(new Task("To complete", LocalDate.now(), Priority.HIGH));
+        Task t = mock(Task.class);
+        when(t.getDescription()).thenReturn("To complete");
+        taskManager.addTask(t);
         taskManager.completeTask("To complete");
-
-        assertEquals(1, taskManager.listCompletedTasks().size());
+        verify(t, times(1)).markCompleted();
     }
 
     // --- Testes de Consulta e Filtragem ---
 
     @Test
     public void listAllTasksShouldReturnEmptyIfNoTasks() {
-        // Verifica o estado inicial (lista vazia).
         assertTrue(taskManager.listAllTasks().isEmpty());
     }
 
     @Test
     public void listCompletedTasksShouldReturnOnlyCompleted() {
-        // Cria uma concluída e uma pendente, verificando se o filtro funciona.
-        Task t1 = new Task("Done", LocalDate.now(), Priority.HIGH);
+        Task t1 = mock(Task.class);
+        when(t1.getDescription()).thenReturn("Done");
         taskManager.addTask(t1);
-        taskManager.completeTask("Done"); // Marca como concluída
+        taskManager.completeTask("Done");
 
-        taskManager.addTask(new Task("Pending", LocalDate.now(), Priority.MEDIUM));
+        Task t2 = mock(Task.class);
+        when(t2.getDescription()).thenReturn("Pending");
+        taskManager.addTask(t2);
 
-        // Espera-se apenas 1 tarefa na lista de concluídas.
         assertEquals(1, taskManager.listCompletedTasks().size());
     }
 
     @Test
     public void listPendingTasksShouldExcludeCompleted() {
-        // Cria uma concluída e uma pendente.
-        Task t1 = new Task("Completed", LocalDate.now(), Priority.HIGH);
+        Task t1 = mock(Task.class);
+        when(t1.getDescription()).thenReturn("Completed");
         taskManager.addTask(t1);
         taskManager.completeTask("Completed");
 
-        Task t2 = new Task("Pending", LocalDate.now(), Priority.MEDIUM);
+        Task t2 = mock(Task.class);
+        when(t2.getDescription()).thenReturn("Pending");
         taskManager.addTask(t2);
 
-        // A lista de pendentes deve ter apenas 1 item.
-        assertEquals(1, taskManager.listPendingTasks().size(), "A lista pendente deve ter apenas o item 'Pending'.");
+        assertEquals(1, taskManager.listPendingTasks().size());
     }
 
     @Test
     public void shouldListTasksByHighPriority() {
-        // Adiciona tarefas de diferentes prioridades.
-        taskManager.addTask(new Task("High1", LocalDate.now(), Priority.HIGH));
-        taskManager.addTask(new Task("Medium1", LocalDate.now(), Priority.MEDIUM));
-        taskManager.addTask(new Task("High2", LocalDate.now(), Priority.HIGH));
+        Task t1 = mock(Task.class);
+        Task t2 = mock(Task.class);
+        Task t3 = mock(Task.class);
 
-        // Deve retornar 2 tarefas com prioridade HIGH.
+        when(t1.getPriority()).thenReturn(Priority.HIGH);
+        when(t2.getPriority()).thenReturn(Priority.MEDIUM);
+        when(t3.getPriority()).thenReturn(Priority.HIGH);
+
+        taskManager.addTask(t1);
+        taskManager.addTask(t2);
+        taskManager.addTask(t3);
+
         assertEquals(2, taskManager.listByPriority(Priority.HIGH).size());
     }
 
@@ -99,10 +104,11 @@ public class TaskManagerTest {
 
     @Test
     public void shouldNotCompleteNonExistentTask() {
-        // Verifica se a conclusão de uma tarefa inexistente não afeta o total de tarefas.
-        taskManager.addTask(new Task("Existing", LocalDate.now(), Priority.LOW));
-        int countBefore = taskManager.listAllTasks().size();
+        Task t = mock(Task.class);
+        when(t.getDescription()).thenReturn("Existing");
+        taskManager.addTask(t);
 
+        int countBefore = taskManager.listAllTasks().size();
         taskManager.completeTask("Non Existent");
 
         assertEquals(countBefore, taskManager.listAllTasks().size());
@@ -110,15 +116,16 @@ public class TaskManagerTest {
 
     @Test
     public void shouldNotAddNullTask() {
-        // Verifica se a checagem de nulo no método addTask() funciona.
         taskManager.addTask(null);
         assertEquals(0, taskManager.listAllTasks().size());
     }
 
     @Test
     public void shouldNotRemoveNonExistentTask() {
-        // Garante que a remoção de uma descrição não existente não remova outras tarefas.
-        taskManager.addTask(new Task("Keep", LocalDate.now(), Priority.LOW));
+        Task t = mock(Task.class);
+        when(t.getDescription()).thenReturn("Keep");
+        taskManager.addTask(t);
+
         taskManager.removeTask("Non Existent");
         assertEquals(1, taskManager.listAllTasks().size());
     }
@@ -127,47 +134,88 @@ public class TaskManagerTest {
 
     @Test
     public void mockShouldVerifyIsCompletedCall() {
-        // Verifica se o método isCompleted() foi chamado no objeto mock.
         mockTask.isCompleted();
-        // A sintaxe verify(mock, times(1)) garante que a colaboração ocorreu exatamente 1 vez.
         verify(mockTask, times(1)).isCompleted();
     }
 
     @Test
     public void mockShouldSimulateMediumPriority() {
-        // Usa 'when...thenReturn' para forçar o mock a retornar um valor específico.
         when(mockTask.getPriority()).thenReturn(Priority.MEDIUM);
         assertEquals(Priority.MEDIUM, mockTask.getPriority());
     }
 
     @Test
     public void mockSimulatingAddition() {
-        // Testa se o TaskManager consegue adicionar o mock na sua lista interna.
         taskManager.addTask(mockTask);
         assertEquals(1, taskManager.getTasks().size());
     }
 
     @Test
     public void mockVerifiesIfManagerCallsMarkCompleted() {
-        // Este é um teste crucial: ele verifica a colaboração.
-        // 1. Configura o mock para retornar uma descrição conhecida.
         when(mockTask.getDescription()).thenReturn("MOCK_TASK");
         taskManager.addTask(mockTask);
 
-        // 2. Chama o método de negócio (TaskManager).
         taskManager.completeTask("MOCK_TASK");
 
-        // 3. Verifica se o TaskManager CHAMOU o método markCompleted() no objeto mock.
         verify(mockTask, times(1)).markCompleted();
     }
 
     @Test
     public void mockSimulatingFutureDeadline() {
-        // Simula a data de vencimento para amanhã.
         when(mockTask.getDeadline()).thenReturn(LocalDate.now().plusDays(1));
+        assertTrue(mockTask.getDeadline().isAfter(LocalDate.now()));
+    }
 
-        LocalDate date = mockTask.getDeadline();
-        // Verifica se a data simulada é realmente no futuro.
-        assertTrue(date.isAfter(LocalDate.now()));
+    @Test
+    public void shouldNotRemoveFromEmptyList() {
+        Task fakeTask = mock(Task.class);
+        when(fakeTask.getDescription()).thenReturn("NothingHere");
+
+        taskManager.removeTask("NothingHere");
+        assertTrue(taskManager.listAllTasks().isEmpty());
+    }
+
+    @Test
+    public void shouldAddMultipleMockTasksAndCheckCount() {
+        Task t1 = mock(Task.class);
+        Task t2 = mock(Task.class);
+        Task t3 = mock(Task.class);
+
+        when(t1.getDescription()).thenReturn("T1");
+        when(t2.getDescription()).thenReturn("T2");
+        when(t3.getDescription()).thenReturn("T3");
+
+        taskManager.addTask(t1);
+        taskManager.addTask(t2);
+        taskManager.addTask(t3);
+
+        assertEquals(3, taskManager.listAllTasks().size());
+    }
+
+    @Test
+    public void shouldCompleteMockTaskAndVerifyItIsNotPending() {
+        Task fakeTask = mock(Task.class);
+        when(fakeTask.getDescription()).thenReturn("FinishMe");
+
+        taskManager.addTask(fakeTask);
+        taskManager.completeTask("FinishMe");
+
+        verify(fakeTask, times(1)).markCompleted();
+        assertFalse(taskManager.listPendingTasks().contains(fakeTask));
+    }
+
+    @Test
+    public void mockShouldReturnFutureDeadline() {
+        Task fakeTask = mock(Task.class);
+        when(fakeTask.getDeadline()).thenReturn(LocalDate.now().plusDays(5));
+
+        assertTrue(fakeTask.getDeadline().isAfter(LocalDate.now()));
+    }
+
+    @Test
+    public void mockShouldVerifyDescriptionCalled() {
+        Task fakeTask = mock(Task.class);
+        fakeTask.getDescription();
+        verify(fakeTask, times(1)).getDescription();
     }
 }
