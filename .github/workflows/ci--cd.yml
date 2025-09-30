@@ -71,4 +71,5 @@ jobs:
           ./scripts/enviar_email.sh "$STATUS_FINAL"
         env:
           # CORREÇÃO FINAL: Variável de ambiente com o e-mail hardcoded para contornar o problema do Secret.
-          EMAIL_DESTINO: tiago.tr@gec.inatel.br
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
